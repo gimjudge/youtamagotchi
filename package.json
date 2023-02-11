@@ -4,6 +4,9 @@
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
+    "and": "expo run:android -d",
+    "./g": "cd android && ./gradlew clean",
+    "cc": "yarn cache clean",
     "ios": "expo run:ios",
     "web": "expo start --web"
   },

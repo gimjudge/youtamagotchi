@@ -1,18 +1,54 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Image, SafeAreaView, ScrollView } from 'react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
-import SpriteSheet from 'rn-sprite-sheet';
 import MySpriteSheet from '../components/MySpriteSheet';
+import MySpriteSheets from '../components/MySpriteSheets';
 import Appetite from '../components/AppetiteButton';
 import Message from '../components/MessageButton';
 
 // import SpriteSheet from 'rn-sprite-sheet'
 
 export default function Sprites() {
-
+    const ref = useRef(null)
     const [stateSprite, setStateSprite] = useState('left')
+    console.log("🚀 ~ file: Sprites.tsx:16 ~ Sprites ~ stateSprite", stateSprite)
+    console.log("🚀 ~ file: Sprites.tsx:16 ~ Sprites ~ stateSprite", stateSprite)
+    
+    // setTimeout(()=>{
+    //     ref.current && (ref.current as any).stop()
+    // }, 2000)
+
+    // setTimeout(()=>{
+    //     ref.current && (ref.current as any).play()
+    // },4000)
+
+    // useEffect(() => {
+    //     console.log("🚀 ~ file: Sprites.tsx:34 ~ useEffect ~ stateSprite", stateSprite)
+        
+    //     setTimeout(()=>{
+    //         ref.current && (ref.current as any).stop()
+    //     }, 2000)
+    
+    //     setTimeout(()=>{
+    //         ref.current && (ref.current as any).play()
+    //     },4000)
+    // }, [stateSprite])\
+    
+    // useEffect(() => {
+    //     console.log("🚀 ~ file: Sprites.tsx:34 ~ useEffect ~ stateSprite", stateSprite)
+        
+    //     setTimeout(()=>{
+    //         ref.current && (ref.current as any).stop()
+    //     }, 2000)
+    
+    //     setTimeout(()=>{
+    //         ref.current && (ref.current as any).play()
+    //     },4000)
+    // }, [])
+    
+
     return (
         <SafeAreaView  style={styles.spritesContainer}>
             <ScrollView>
@@ -51,6 +87,35 @@ export default function Sprites() {
                         }
                     ]}
                     defaultAnimation={stateSprite}
+
+                />
+                <MySpriteSheets 
+                    ref={ref}
+                    src={require('../../assets/slime.jiggle.png')} 
+                    columns={8} 
+                    animations={[
+                        { 
+                            name: "left",
+                            row: 0,
+                            frames: 8
+                        },
+                        { 
+                            name: "right",
+                            row: 1,
+                            frames: 8
+                        },
+                        { 
+                            name: "forward",
+                            row: 2,
+                            frames: 8
+                        }
+                    ]}
+                    defaultAnimation={stateSprite}
+                    // style={{
+                    //     aspectRatio: 1,
+                    //     // height: '50%',
+                    //     width: undefined,
+                    // }} 
 
                 />
             

@@ -1,0 +1,219 @@
+<MySpriteSheets 
+                    ref={ref}
+                    src={require('../../assets/slime.jiggle.png')} 
+                    columns={8} 
+                    animations={[
+                        { 
+                            name: "left",
+                            row: 0,
+                            frames: 8
+                        },
+                        { 
+                            name: "right",
+                            row: 1,
+                            frames: 8
+                        },
+                        { 
+                            name: "forward",
+                            row: 2,
+                            frames: 8
+                        }
+                    ]}
+                    defaultAnimation={stateSprite}
+                    style={{
+                        aspectRatio: 1,
+                        height: '50%',
+                        width: undefined,
+                    }} 
+
+                />
+
+
+import { Animated, Easing, Image, LayoutChangeEvent, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native'
+import React, { PropsWithChildren, useEffect, useState } from 'react'
+
+
+interface Animation {
+	name: string;
+	row: number;
+	frames?: number;
+}
+
+type InternalAnimations = {[key: string]: InternalAnimation}
+
+interface InternalAnimation {
+	frames: number;
+	input: number[];
+	output: number[];
+	translateY: number;
+}
+
+const blankInternalAnimation: InternalAnimation = {
+	frames: 0,
+	input: [0, 0],
+	output: [0, 0],
+	translateY: 0,
+
+}
+interface Props {
+	src: any;
+	rows?: number;
+	columns: number;
+	rate?: number;
+	animations: Animation[];
+	defaultAnimation: string;
+	style?: StyleProp<ViewStyle>;
+}
+
+const defaultProps: Partial<Props> = {
+	rows: 1,
+}
+const defaultFrameSize = 64
+
+interface State {
+	time: Animated.Value;
+	internalAnimations: InternalAnimations;
+	currentAnimation: string;
+	size: number;
+	loaded: boolean;
+	playing: boolean;
+}
+
+export class MySpriteSheets extends React.Component<Props, State> {
+
+	constructor(props: Props) {
+		super(props)
+
+		const internalAnimations: InternalAnimations = {
+			[this.props.defaultAnimation]: blankInternalAnimation
+		}
+
+		this.state = {
+			time: new Animated.Value(0.0),
+			internalAnimations: internalAnimations,
+			currentAnimation: this.props.defaultAnimation,
+			size: defaultFrameSize,
+			loaded: false,
+			playing: false,
+
+		}
+		
+		this.play()
+	}
+
+
+	play () {
+		this.state.time.setValue(0)
+
+		Animated.timing(this.state.time, {
+			toValue: this.state.internalAnimations[this.state.currentAnimation].frames-1,
+			duration: 1000,
+			easing: Easing.linear,
+			useNativeDriver: true,
+		}).start(( finished )=>{
+			if ( !finished ) return; 
+
+			if(!this.state.playing) {
+				this.setState((prevState) => ({
+					...prevState,
+					playing: true,
+				}))
+			}
+			this.play()
+		})
+	}
+
+	stop = () => {
+		this.state.time.stopAnimation()
+	}
+
+	generateInterpolationRanges (event: LayoutChangeEvent) {
+		if (this.state.loaded) return;
+
+		const size = event.nativeEvent.layout.height
+		
+		const internalAnimations: InternalAnimations = {}
+		for (let animation of this.props.animations) {
+			console.log("🚀 ~ file: MySpriteSheet.tsx:16 ~ MySpriteSheet ~ constructor ~ animation", animation)
+
+			const numberFrames = animation.frames ?? this.props.columns
+			console.log("🚀 ~ file: MySpriteSheet.tsx:90 ~ MySpriteSheet ~ generateInterpolationRanges ~ numberFrames", numberFrames)
+
+			const internalAnimation = {
+				frames: numberFrames,
+				input: getNumPairs(numberFrames).slice(0, 2*numberFrames-1),
+				output: [0].concat(getNumPairs(numberFrames-1).map((i) => -(i+1)*size)),
+				translateY: animation.row*size
+			}
+			console.log("🚀 ~ file: MySpriteSheet.tsx:24 ~ MySpriteSheet ~ constructor ~ internalAnimation", internalAnimation)
+			internalAnimations[animation.name] = internalAnimation
+		}
+
+		this.setState({
+			...this.state,
+			internalAnimations: internalAnimations,
+			size: defaultFrameSize,
+			loaded: true,
+		})
+	}
+	
+	render() {
+		return (
+			<View 
+				style={[styles.spriteContainer, this.props.style]}
+				onLayout={this.generateInterpolationRanges}
+			>
+				{/* <Image source={src} style={{width: 400, height: 400}}/> */}
+				{/* <Image source={require('../../assets/slime.jiggle.png')} style={{width: 400, height: 400}}/> */}
+				{/* <Image source={{uri: 'https://opengameart.org/sites/default/files/slime.jiggle.png'}} style={{width: 400, height: 400}}/> */}
+				<Animated.Image
+					// source={{uri: 'https://opengameart.org/sites/default/files/slime.jiggle.png'}}
+					source={require('../../assets/slime.jiggle.png')}
+					style={[styles.img, {
+						opacity: this.state.playing ? 1.0 : 0.0 ,
+						height: this.state.size,
+						width: this.state.size*this.props.columns,
+						transform: [
+							{ translateX: this.state.time.interpolate({
+								inputRange: this.state.internalAnimations[this.state.currentAnimation].input,
+								outputRange: this.state.internalAnimations[this.state.currentAnimation].output,
+							})},
+							{ translateY: this.state.internalAnimations[this.state.currentAnimation].translateY}
+						]
+					}]}
+				/>
+			</View>
+		)
+	}
+}
+
+const getNumPairs = (length: number) => {
+	const pairsArray: number[] = [];
+	for (let index = 0; index < length; index++) {
+		pairsArray.push(index)
+		pairsArray.push(index)
+	}
+	return pairsArray
+}
+
+export default MySpriteSheet
+
+const styles = StyleSheet.create({
+	spriteContainer: {
+		aspectRatio: 1,
+		overflow: 'hidden',
+		borderWidth: 1,
+		borderColor: '#f00',
+		// height: 150,
+	},
+	img: {
+
+	},
+	// bkg: {
+	// 	position: 'absolute',
+	// 	aspectRatio: 1,
+	// 	width: '100%',
+	// 	height: undefined,
+	// 	top: -150,
+	// }
+});

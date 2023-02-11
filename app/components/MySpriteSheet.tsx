@@ -4,6 +4,51 @@ import React, { PropsWithChildren, useEffect, useState } from 'react'
 
 const frameSize = 64
 
+interface Animation {
+	name: string;
+	row: number;
+	frames?: number;
+}
+
+type InternalAnimations = {[key: string]: InternalAnimation}
+
+interface InternalAnimation {
+	frames: number;
+	input: number[];
+	output: number[];
+	translateY: number;
+}
+
+const blankInternalAnimation: InternalAnimation = {
+	frames: 0,
+	input: [0, 0],
+	output: [0, 0],
+	translateY: 0,
+
+}
+interface Props {
+	src: any;
+	rows?: number;
+	columns: number;
+	rate?: number;
+	animations: Animation[];
+	defaultAnimation: string;
+	style?: StyleProp<ViewStyle>;
+}
+
+const defaultProps: Partial<Props> = {
+	rows: 1,
+}
+const defaultFrameSize = 64
+
+interface State {
+	time: Animated.Value;
+	internalAnimations: InternalAnimations;
+	currentAnimation: string;
+	size: number;
+	loaded: boolean;
+	playing: boolean;
+}
 
 export class MySpriteSheet extends React.Component<Props, State> {
 
@@ -13,17 +58,18 @@ export class MySpriteSheet extends React.Component<Props, State> {
 
 		const internalAnimations = {}
 		for (let animation of this.props.animations) {
-		console.log("🚀 ~ file: MySpriteSheet.tsx:16 ~ MySpriteSheet ~ constructor ~ animation", animation)
 
 			const numberFrames = animation.frames ?? this.props.columns
+			// console.log("🚀 ~ file: MySpriteSheet.tsx:74 ~ MySpriteSheet ~ constructor ~ frameSize", frameSize)
+			
 
 			const internalAnimation = {
 				frames: numberFrames,
 				input: getNumPairs(numberFrames).slice(0, 2*numberFrames-1),
 				output: [0].concat(getNumPairs(numberFrames-1).map((i) => -(i+1)*frameSize)),
-				translateY: animation.row*frameSize
+				translateY: -animation.row*frameSize
 			}
-			console.log("🚀 ~ file: MySpriteSheet.tsx:24 ~ MySpriteSheet ~ constructor ~ internalAnimation", internalAnimation)
+			// console.log("🚀 ~ file: MySpriteSheet.tsx:24 ~ MySpriteSheet ~ constructor ~ internalAnimation", internalAnimation)
 			internalAnimations[animation.name] = internalAnimation
 		}
 
@@ -36,17 +82,6 @@ export class MySpriteSheet extends React.Component<Props, State> {
 		
 		this.play()
 	}
-	
-	componentDidUpdate() {
-		// this.setState({currentAnimation: this.props.defaultAnimation})
-		console.log("🚀 ~ file: MySpriteSheet.tsx:44 ~ MySpriteSheet ~ componentDidUpdate ~ this.state", this.state)
-		
-	}
-	// componentWillUpdate() {
-	// 	this.setState({currentAnimation: this.props.defaultAnimation})
-	// 	console.log("🚀 ~ file: MySpriteSheet.tsx:44 ~ MySpriteSheet ~ componentDidUpdate ~ this.state", this.state)
-		
-	// }
 
 
 	play () {
@@ -57,12 +92,10 @@ export class MySpriteSheet extends React.Component<Props, State> {
 			useNativeDriver: true,
 		}).start(()=> this.play())
 	}
-
-	onLayout () {
-
-	}
 	
 	render() {
+		// this.props
+		console.log("🚀 ~ file: MySpriteSheet.tsx:101 ~ MySpriteSheet ~ render ~ this.props", this.props)
 		return (
 			<View 
 				style={[styles.spriteContainer, this.props.style]}
