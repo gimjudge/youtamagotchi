@@ -7,14 +7,16 @@ import MySpriteSheet from '../components/MySpriteSheet';
 import MySpriteSheets from '../components/MySpriteSheets';
 import Appetite from '../components/AppetiteButton';
 import Message from '../components/MessageButton';
+import { useSelector } from 'react-redux';
 
 // import SpriteSheet from 'rn-sprite-sheet'
 
 export default function Sprites() {
+    const { appetite } = useSelector((state: RootState) => state.appetite);
     const ref = useRef(null)
-    const [stateSprite, setStateSprite] = useState('left')
-    console.log("🚀 ~ file: Sprites.tsx:16 ~ Sprites ~ stateSprite", stateSprite)
-    console.log("🚀 ~ file: Sprites.tsx:16 ~ Sprites ~ stateSprite", stateSprite)
+    const [stateSprite, setStateSprite] = useState('forward')
+    // console.log("🚀 ~ file: Sprites.tsx:16 ~ Sprites ~ stateSprite", stateSprite)
+    // console.log("🚀 ~ file: Sprites.tsx:16 ~ Sprites ~ stateSprite", stateSprite)
     
     // setTimeout(()=>{
     //     ref.current && (ref.current as any).stop()
@@ -47,21 +49,9 @@ export default function Sprites() {
     //         ref.current && (ref.current as any).play()
     //     },4000)
     // }, [])
-    
 
-    return (
-        <SafeAreaView  style={styles.spritesContainer}>
-            <ScrollView>
-                {/* <View style={styles.container}>
-                    <Text>Open up App.tsx to start working on your app!</Text>
-                    <StatusBar style="auto" />
-                </View> */}
-                <Message />
-                <Appetite />
-                <Button title={'left'} onPress={()=>setStateSprite('left')} />
-                <Button title={'right'} onPress={()=>setStateSprite('right')} />
-                <Button title={'forward'} onPress={()=>setStateSprite('forward')} />
-                <MySpriteSheet 
+    const OriginalSprite = () => {
+        return <MySpriteSheet 
                     style={{
                         // aspectRatio: 1,
                         // height: '50%',
@@ -89,10 +79,39 @@ export default function Sprites() {
                     defaultAnimation={stateSprite}
 
                 />
+    }
+    
+    const spriteSize = 10 + appetite;
+
+    return (
+        <SafeAreaView  style={styles.spritesContainer}>
+            <ScrollView>
+                {/* <View style={styles.container}>
+                    <Text>Open up App.tsx to start working on your app!</Text>
+                    <StatusBar style="auto" />
+                </View> */}
+                {/* <Message /> */}
+                <View>
+                    <Appetite add={1} min={10} max={200} />
+                    <Appetite add={-1} min={10} max={200} />
+                    <Button title={'left'} onPress={()=>setStateSprite('left')} />
+                    <Button title={'right'} onPress={()=>setStateSprite('right')} />
+                    <Button title={'forward'} onPress={()=>setStateSprite('forward')} />
+                    <Text style={styles.text}>{stateSprite}</Text>
+                    <Text style={styles.text}>{spriteSize}</Text>
+                </View>
+
                 <MySpriteSheets 
                     ref={ref}
+                    // src={require('../../assets/slime.jiggle.svg')} 
                     src={require('../../assets/slime.jiggle.png')} 
                     columns={8} 
+                    rows={3} 
+                    frameSize={64}
+                    frameVerticalOffset={-10}
+                    frameHorizontalOffset={0}
+                    size={spriteSize}
+                    // size={64}
                     animations={[
                         { 
                             name: "left",
@@ -111,14 +130,14 @@ export default function Sprites() {
                         }
                     ]}
                     defaultAnimation={stateSprite}
-                    // style={{
-                    //     aspectRatio: 1,
-                    //     // height: '50%',
-                    //     width: undefined,
-                    // }} 
+                    style={{
+                        aspectRatio: 1,
+                        height: spriteSize,
+                        // height: 64,
+                        width: undefined,
+                    }} 
 
-                />
-            
+                />            
             </ScrollView>
         </SafeAreaView>
     );
@@ -134,6 +153,6 @@ const styles = StyleSheet.create({
     padding: 5
   },
   text: {
-    color: '#000'
+    color: '#FFF'
   }
 });
