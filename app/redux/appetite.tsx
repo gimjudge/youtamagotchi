@@ -3,7 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 const appetiteSlice = createSlice({
   name: "appetite",
   initialState: {
-    appetite: 0
+    appetite: 1
   },
   reducers: {
     setAppetite(state, action: PayloadAction<number>) {

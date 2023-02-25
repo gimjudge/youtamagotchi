@@ -26,8 +26,12 @@ const blankInternalAnimation: InternalAnimation = {
 }
 interface Props {
 	src: any;
-	rows?: number;
+	rows: number;
 	columns: number;
+	frameSize: number;
+	frameVerticalOffset: number;
+	frameHorizontalOffset: number;
+	size: number;
 	rate?: number;
 	animations: Animation[];
 	defaultAnimation: string;
@@ -35,9 +39,9 @@ interface Props {
 }
 
 const defaultProps: Partial<Props> = {
-	rows: 0,
+	rows: 3,
 }
-const defaultFrameSize = 64
+const defaultFrameSize = 90
 
 interface State {
 	time: Animated.Value;
@@ -61,7 +65,7 @@ export class MySpriteSheets extends React.Component<Props, State> {
 			time: new Animated.Value(1.0),
 			internalAnimations: internalAnimations,
 			currentAnimation: this.props.defaultAnimation,
-			size: defaultFrameSize,
+			size: this.props.frameSize??defaultFrameSize,
 			loaded: false,
 			playing: false,
 
@@ -69,15 +73,15 @@ export class MySpriteSheets extends React.Component<Props, State> {
 		
 		this.play()
 		
-		console.log("🚀 ~ file: MySpriteSheets.tsx:72 ~ MySpriteSheets ~ constructor ~ props", this.props)
+		// console.log("🚀 ~ file: MySpriteSheets.tsx:72 ~ MySpriteSheets ~ constructor ~ props", this.props)
 	}
 	
-	// componentDidUpdate(prevProps) {
-	// 	console.log("🚀 ~ file: MySpriteSheets.tsx:76 ~ MySpriteSheets ~ componentDidUpdate ~ prevProps", prevProps)
-	// 	console.log("🚀 ~ file: MySpriteSheets.tsx:76 ~ MySpriteSheets ~ componentDidUpdate ~ this.props", this.props)
-	// 	console.log("🚀 ~ file: MySpriteSheets.tsx:76 ~ MySpriteSheets ~ componentDidUpdate ~ this.props", this.state)
-	// }
-
+	componentDidUpdate(prevProps) {
+		// Typical usage (don't forget to compare props):
+		if (this.props.size !== prevProps.size) {
+			
+		}
+	}
 
 	play () {
 		this.state.time.setValue(0)
@@ -85,7 +89,7 @@ export class MySpriteSheets extends React.Component<Props, State> {
 		// console.log(this.state.time)
 
 		Animated.timing(this.state.time, {
-			toValue: this.state.internalAnimations[this.state.currentAnimation].frames-1,
+			toValue: this.state.internalAnimations[this.props.defaultAnimation].frames-1,
 			duration: 500,
 			easing: Easing.linear,
 			useNativeDriver: true,
@@ -107,10 +111,15 @@ export class MySpriteSheets extends React.Component<Props, State> {
 	}
 
 	generateInterpolationRanges = (event: LayoutChangeEvent) => {
-		if (this.state.loaded) return;
+		console.log('hit')
+		// if (this.state.loaded) return;
+		console.log('hit')
 
 		const size = event.nativeEvent.layout.height
-		console.log("🚀 ~ file: MySpriteSheets.tsx:104 ~ MySpriteSheets ~ size", size)
+		// console.log("🚀 ~ file: MySpriteSheets.tsx:104 ~ MySpriteSheets ~ size", size)
+
+		// const frameHorizontalOffset = this.props.frameHorizontalOffset;
+		const frameHorizontalOffset = (this.state.size * ( this.props.frameHorizontalOffset / this.props.frameSize ));
 		
 		const internalAnimations: InternalAnimations = {}
 		for (let animation of this.props.animations) {
@@ -121,8 +130,8 @@ export class MySpriteSheets extends React.Component<Props, State> {
 			const internalAnimation = {
 				frames: numberFrames,
 				input: getNumPairs(numberFrames).slice(0, 2*numberFrames-1),
-				output: [0].concat(getNumPairs(numberFrames-1).map((i) => -(i+1)*size)),
-				translateY: animation.row*size
+				output: [0].concat(getNumPairs(numberFrames-1).map((index) => -((index+1)*size)+frameHorizontalOffset)),
+				translateY: -animation.row*size
 			}
 				console.log("🚀 ~ file: MySpriteSheets.tsx:118 ~ MySpriteSheets ~ animation.row", internalAnimation)
 			// console.log("🚀 ~ file: MySpriteSheets.tsx:24 ~ MySpriteSheet ~ constructor ~ internalAnimation", internalAnimation)
@@ -139,11 +148,20 @@ export class MySpriteSheets extends React.Component<Props, State> {
 		}))
 		// this.play()
 	}
+
 	
 	render() {
-		console.log('this.state.currentAnimation',this.state.currentAnimation)
-		console.log("🚀 ~ file: MySpriteSheets.tsx:166 ~ MySpriteSheets ~ render ~ this.state.internalAnimations[this.state.currentAnimation].translateY", this.state.internalAnimations[this.state.currentAnimation].translateY)
-
+		// console.log('this.props.defaultAnimation',this.props.defaultAnimation)
+		// console.log("🚀 ~ file: MySpriteSheets.tsx:166 ~ MySpriteSheets ~ render ~ this.state.internalAnimations[this.props.defaultAnimation].translateY", this.state.internalAnimations[this.props.defaultAnimation].translateY)
+		const frameVerticalOffset = (this.state.size * ( this.props.frameVerticalOffset / this.props.frameSize ));
+		console.log("🚀 ~ file: MySpriteSheets.tsx:156 ~ MySpriteSheets ~ render ~ frameVerticalOffset", frameVerticalOffset)
+		console.log("🚀 ~ file: MySpriteSheets.tsx:156 ~ MySpriteSheets ~ render ~ size", this.state.size)
+		console.log("🚀 ~ file: MySpriteSheets.tsx:156 ~ MySpriteSheets ~ render ~ frame size", this.props.frameSize)
+		console.log("🚀 ~ file: MySpriteSheets.tsx:156 ~ MySpriteSheets ~ render ~ this.props.frameVerticalOffset", this.props.frameVerticalOffset)
+		console.log("🚀 ~ file: MySpriteSheets.tsx:156 ~ MySpriteSheets ~ render ~ this.props.frameVerticalOffset", ( this.props.frameVerticalOffset / this.props.frameSize ))
+		console.log("🚀 ~ file: MySpriteSheets.tsx:156 ~ MySpriteSheets ~ render ~ average", ( this.state.size * ( this.props.frameVerticalOffset / this.props.frameSize ) ))
+		console.log("🚀 ~ file: MySpriteSheets.tsx:156 ~ MySpriteSheets ~ render ~ math", Math.round( this.state.size * ( this.props.frameVerticalOffset / this.props.frameSize ) ))
+		
 		return (
 			<View 
 				style={[styles.spriteContainer, this.props.style]}
@@ -154,17 +172,21 @@ export class MySpriteSheets extends React.Component<Props, State> {
 				{/* <Image source={{uri: 'https://opengameart.org/sites/default/files/slime.jiggle.png'}} style={{width: 400, height: 400}}/> */}
 				<Animated.Image
 					// source={{uri: 'https://opengameart.org/sites/default/files/slime.jiggle.png'}}
-					source={require('../../assets/slime.jiggle.png')}
+					// source={require('../../assets/slime.jiggle.png')}
+					source={this.props.src}
 					style={[styles.img, {
 						// opacity: this.state.playing ? 1.0 : 0.0 ,
-						// height: this.state.size,
-						width: this.state.size*this.props.columns,
+						// height: (this.state.size*this.props.rows)+this.props.verticalOffset,
+						// width: (this.state.size*this.props.columns)+this.props.horizontalOffset,
+						height: (this.state.size*this.props.rows),
+						width: (this.state.size*this.props.columns),
 						transform: [
 							{ translateX: this.state.time.interpolate({
-								inputRange: this.state.internalAnimations[this.state.currentAnimation].input,
-								outputRange: this.state.internalAnimations[this.state.currentAnimation].output,
+								inputRange: this.state.internalAnimations[this.props.defaultAnimation].input,
+								outputRange: this.state.internalAnimations[this.props.defaultAnimation].output,
 							})},
-							{ translateY: this.state.internalAnimations[this.state.currentAnimation].translateY}
+							// { translateY: 10}
+							{ translateY: this.state.internalAnimations[this.props.defaultAnimation].translateY+frameVerticalOffset}
 						]
 					}]}
 				/>
@@ -189,8 +211,8 @@ const styles = StyleSheet.create({
 		aspectRatio: 1,
 		overflow: 'hidden',
 		borderWidth: 1,
-		borderColor: '#f00',
-		height: 64,
+		// borderColor: '#f00',
+		// height: 64,
 	},
 	img: {
 

@@ -95,7 +95,7 @@ export class MySpriteSheet extends React.Component<Props, State> {
 	
 	render() {
 		// this.props
-		console.log("🚀 ~ file: MySpriteSheet.tsx:101 ~ MySpriteSheet ~ render ~ this.props", this.props)
+		// console.log("🚀 ~ file: MySpriteSheet.tsx:101 ~ MySpriteSheet ~ render ~ this.props", this.props)
 		return (
 			<View 
 				style={[styles.spriteContainer, this.props.style]}

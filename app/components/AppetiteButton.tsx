@@ -3,22 +3,18 @@ import { View, Text, Button, StyleSheet } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { setAppetite } from "../redux/appetite";
 
-const Appetite = () => {
+const Appetite = ({add}) => {
 		const dispatch = useDispatch();
 		const { appetite } = useSelector((state: RootState) => state.appetite);
-		console.log("🚀 ~ file: App.tsx:32 ~ Appetite ~ appetite", appetite)
 	
 		const handlePress = () => {
-			console.log("🚀 ~ file: App.tsx:49 ~ handlePress ~ 1", 1)
-			dispatch(setAppetite(1));
+			dispatch(setAppetite(add));
 		};
 	
-		
-		console.log("🚀 ~ file: App.tsx:32 ~ Appetite ~ appetite", appetite)
 		return (
 			<View style={styles.container}>
 				<Text style={styles.text}>yes{appetite} no</Text>
-				<Button title={'Set Appetite'} onPress={handlePress} />
+				<Button title={`Add ${add}`} onPress={handlePress} />
 			</View>
 		);
 };
