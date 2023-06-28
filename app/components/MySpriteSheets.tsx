@@ -32,6 +32,8 @@ interface Props {
 	frameVerticalOffset: number;
 	frameHorizontalOffset: number;
 	size: number;
+	maxSize: number;
+	minSize: number;
 	rate?: number;
 	animations: Animation[];
 	defaultAnimation: string;
@@ -61,11 +63,19 @@ export class MySpriteSheets extends React.Component<Props, State> {
 			[this.props.defaultAnimation]: blankInternalAnimation
 		}
 
+		const expressedSize = this.props.frameSize??defaultFrameSize
+		const theSize = (expressedSize > this.props.maxSize) 
+			? this.props.maxSize 
+			: ( (expressedSize < this.props.minSize) 
+				? this.props.minSize 
+				: expressedSize
+			)
+
 		this.state = {
 			time: new Animated.Value(1.0),
 			internalAnimations: internalAnimations,
 			currentAnimation: this.props.defaultAnimation,
-			size: this.props.frameSize??defaultFrameSize,
+			size: theSize,
 			loaded: false,
 			playing: false,
 
@@ -210,7 +220,7 @@ const styles = StyleSheet.create({
 	spriteContainer: {
 		aspectRatio: 1,
 		overflow: 'hidden',
-		borderWidth: 1,
+		// borderWidth: 1,
 		// borderColor: '#f00',
 		// height: 64,
 	},
